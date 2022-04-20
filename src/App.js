@@ -4,17 +4,15 @@ import web3 from "./ethereum/webThree";
 // import EthereumTx from "ethereumjs-tx"
 import election from "./ethereum/election";
 // import { Transaction } from '@ethereumjs/tx'
-const Tx = require('ethereumjs-tx').Transaction
+const Tx = require("ethereumjs-tx").Transaction;
 
 // const ethtx = require('ethereumtx')
 // const EthereumTx = require("ethereumjs-tx");
 
 const publicKey = "0xD0e203A04Eb4024Fbd90768b46E37aC67F1Cd707";
-const privateKey = "9f94794beb1b094dfa4dd85f1190703500e5179fe4b53767dcfc785eaa4620b0";
+const privateKey =
+  "9f94794beb1b094dfa4dd85f1190703500e5179fe4b53767dcfc785eaa4620b0";
 const contractAddress = "0x4e6a5bfb44c6d243a44ed5f6704be50c38ac289f";
-
-
-
 
 function App() {
   useEffect(() => {
@@ -24,42 +22,35 @@ function App() {
     };
     countVotes();
 
-    console.log(typeof(web3.utils.toChecksumAddress(publicKey)));
+    const methodFunction = async () => {
+      const votes = "123";
+      const voterId = "12";
 
-    const methodFunction = async () =>{
-          const votes = "123";
-          const voterId = "12";
-          const functionAbi = election.methods
-            .store(voterId, votes)
-            .encodeABI();
+      const functionAbi = election.methods.store(voterId, votes).encodeABI();
 
-            web3.eth.getTransactionCount(
-                    web3.eth.defaultAccount,
-                    function (err, nonce) {
-                      console.log("nonce value is ", nonce);
-  
-          var details = {
-            from: web3.utils.toChecksumAddress(publicKey),
-            nonce: web3.utils.toHex(nonce),
-            gasPrice: web3.utils.toHex(web3.utils.toWei("100", "gwei")),
-            gasLimit: 500000,
-            to: web3.utils.toChecksumAddress(contractAddress),
-            value: 0,
-            data: functionAbi,
-          };
+      web3.eth.getTransactionCount(publicKey, function (err, nonce) {
+        var details = {
+          from: web3.utils.toChecksumAddress(publicKey),
+          nonce: web3.utils.toHex(nonce),
+          gasPrice: web3.utils.toHex(web3.utils.toWei("100", "gwei")),
+          gasLimit: 500000,
+          to: contractAddress,
+          value: 0,
+          data: functionAbi,
+        };
 
-          var tx = new Tx(details)
-          tx.sign(Buffer.from(privateKey, "hex"))
-          var serializedTx = tx.serialize();
+        var tx = new Tx(details, { chain: "rinkeby" });
+        tx.sign(Buffer.from(privateKey, "hex"));
+        var serializedTx = tx.serialize();
 
-          web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
-            .on('receipt', console.log);
-        }
-      );}
+        web3.eth
+          .sendSignedTransaction("0x" + serializedTx.toString("hex"))
+          .on("receipt", console.log)
+          .on("error", console.log);
+      });
+    };
 
-    methodFunction();
-
-    
+    // methodFunction();
   }, []);
 
   return <div className="App">hello</div>;
