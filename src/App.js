@@ -1,13 +1,8 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import web3 from "./ethereum/webThree";
-// import EthereumTx from "ethereumjs-tx"
 import election from "./ethereum/election";
-// import { Transaction } from '@ethereumjs/tx'
 const Tx = require("ethereumjs-tx").Transaction;
-
-// const ethtx = require('ethereumtx')
-// const EthereumTx = require("ethereumjs-tx");
 
 const publicKey = "0xD0e203A04Eb4024Fbd90768b46E37aC67F1Cd707";
 const privateKey =
@@ -50,7 +45,7 @@ function App() {
       });
     };
 
-    // methodFunction();
+    methodFunction();
   }, []);
 
   return <div className="App">hello</div>;
