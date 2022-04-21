@@ -2,7 +2,8 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import web3 from "./ethereum/webThree";
 import election from "./ethereum/election";
-const Tx = require("ethereumjs-tx").Transaction;
+import { Transaction } from "@ethereumjs/tx";
+import Common, { Chain } from "@ethereumjs/common";
 
 const publicKey = "0xD0e203A04Eb4024Fbd90768b46E37aC67F1Cd707";
 const privateKey =
@@ -19,14 +20,16 @@ function App() {
 
     const methodFunction = async () => {
       const votes = "123";
-      const voterId = "12";
+      const voterId = "1234567";
 
       const functionAbi = election.methods.store(voterId, votes).encodeABI();
 
+      const common = new Common({ chain: Chain.Rinkeby });
+
       web3.eth.getTransactionCount(publicKey, function (err, nonce) {
         var details = {
-          from: web3.utils.toChecksumAddress(publicKey),
-          nonce: web3.utils.toHex(nonce),
+          from: publicKey,
+          nonce: nonce,
           gasPrice: web3.utils.toHex(web3.utils.toWei("100", "gwei")),
           gasLimit: 500000,
           to: contractAddress,
@@ -34,14 +37,16 @@ function App() {
           data: functionAbi,
         };
 
-        var tx = new Tx(details, { chain: "rinkeby" });
-        tx.sign(Buffer.from(privateKey, "hex"));
-        var serializedTx = tx.serialize();
+        var tx = new Transaction.fromTxData(details, { common });
+        const signedTx = tx.sign(Buffer.from(privateKey, "hex"));
+        var ss = signedTx.serialize();
 
         web3.eth
-          .sendSignedTransaction("0x" + serializedTx.toString("hex"))
+          .sendSignedTransaction("0x" + ss.toString("hex"))
           .on("receipt", console.log)
-          .on("error", console.log);
+          .on("error", console.log)
+          .on();
+
       });
     };
 
